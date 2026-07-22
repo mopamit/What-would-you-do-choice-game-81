@@ -95,6 +95,8 @@
   .eyebrow{display:inline-block;font-size:14px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--brand-2);padding:7px 15px;border-radius:999px;margin-bottom:16px;transition:background .3s ease;}
   .story-text{font-size:clamp(19px,2.3vw,25px);color:var(--ink);margin:0 0 4px;line-height:1.62;}
   .prompt{font-weight:800;font-size:clamp(21px,2.6vw,29px);color:var(--navy);margin:28px 0 16px;}
+  .intro-video{margin:24px 0 6px;}
+  .intro-video video{width:100%;display:block;border-radius:16px;border:2.5px solid var(--navy);background:#000;box-shadow:var(--shadow-soft);}
 
   /* ---------- choices: AMIT navy pill buttons ---------- */
   .choices{display:flex;flex-direction:column;gap:15px;}
@@ -374,6 +376,12 @@ function renderHome(){
   return `
     <span class="eyebrow">A story about kindness</span>
     <p class="story-text">You are going to read two short stories about bullying. You choose how to react, find out what happens, and see how the story ends. Not happy with a choice? You can always go back and try another one.</p>
+    <div class="intro-video">
+      <video controls preload="metadata" playsinline>
+        <source src="https://res.cloudinary.com/nrjhmk3e/video/upload/v1784741325/What_Would_You_Do__b6qbnu.mp4" type="video/mp4" />
+        Your browser can't play this video.
+      </video>
+    </div>
     <p class="prompt">Choose a story to start:</p>
     <div class="story-pick">
       <button class="pick" onclick="go('A_start')">
