@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What Would You Do? — AMIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy:#14365e; --navy-2:#0f2a4a;
+    --lime:#b0bd21; --lime-2:#8f9a17;
+    --blue:#2badde; --blue-2:#21739e;
+    --green:#6db580; --green-2:#4d8879;
+    --bg:#EEF2F0; --panel:#ffffff;
+    --ink:#14365e; --ink-soft:#5b6b7d; --line:#dfe6ea;
+
+    /* per-story accent swaps at runtime */
+    --brand:var(--lime); --brand-2:var(--lime-2); --brand-tint:#f2f5da;
+
+    --maxw:1120px; --radius:22px;
+    --shadow:0 18px 48px -22px rgba(20,54,94,.40);
+    --shadow-soft:0 8px 22px -14px rgba(20,54,94,.40);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1400px 700px at 90% -8%, var(--brand-tint), transparent 60%), var(--bg);
+    color:var(--ink);
+    font-family:'Assistant','Segoe UI',Arial,sans-serif;
+    line-height:1.55; min-height:100dvh; transition:background .5s ease;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:24px 22px 80px;}
+
+  /* ---------- header: AMIT logo top-right on white ---------- */
+  header.top{
+    display:flex;align-items:center;gap:18px;
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow-soft);
+    padding:16px 22px;margin-bottom:16px;
+  }
+  .head-left{display:flex;align-items:center;gap:16px;flex:1;min-width:0;}
+  .titles h1{font-weight:800;font-size:clamp(24px,4vw,34px);margin:0;color:var(--navy);letter-spacing:-.01em;line-height:1.1;}
+  .titles p{margin:4px 0 0;color:var(--ink-soft);font-size:clamp(14px,2vw,17px);font-weight:600;}
+  .logo{height:clamp(64px,9vw,96px);width:auto;flex:0 0 auto;background:#fff;}
+
+  .controls{display:flex;gap:10px;flex:0 0 auto;}
+  .icon-btn{
+    border:none;background:transparent;padding:0;cursor:pointer;
+    width:clamp(46px,6vw,56px);height:clamp(46px,6vw,56px);border-radius:50%;
+    display:grid;place-items:center;transition:transform .12s ease,opacity .2s ease;
+  }
+  .icon-btn img{width:100%;height:100%;object-fit:contain;display:block;}
+  .icon-btn:hover{transform:translateY(-2px) scale(1.04);}
+  .icon-btn:disabled{opacity:.32;cursor:default;transform:none;}
+  .icon-btn:focus-visible{outline:3px solid var(--brand);outline-offset:3px;}
+
+  /* ---------- path trail (your journey) ---------- */
+  .trail{display:flex;align-items:center;gap:2px;overflow-x:auto;padding:2px 4px 16px;scrollbar-width:none;}
+  .trail::-webkit-scrollbar{display:none;}
+  .crumb{white-space:nowrap;border:none;background:transparent;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink-soft);padding:7px 13px;border-radius:999px;cursor:pointer;transition:color .2s ease,background .2s ease;}
+  .crumb:hover{color:var(--brand-2);background:var(--brand-tint);}
+  .crumb:focus-visible{outline:3px solid var(--brand);outline-offset:2px;}
+  .crumb.now{color:#fff;background:var(--navy);cursor:default;}
+  .crumb.now:hover{background:var(--navy);}
+  .sep{color:var(--line);font-weight:800;padding:0 2px;user-select:none;font-size:16px;}
+
+  /* ---------- card ---------- */
+  .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:var(--brand);transition:background .4s ease;z-index:2;}
+  @keyframes pageIn{from{opacity:0;transform:translateY(12px) scale(.995);}to{opacity:1;transform:none;}}
+  .card.anim .card-inner{animation:pageIn .32s cubic-bezier(.2,.7,.3,1) both;}
+  .card-inner{padding:40px 40px 44px;}
+
+  .scene-img{position:relative;margin:-40px -40px 28px;background:#eef2f5;border-bottom:1px solid var(--line);aspect-ratio:16/9;max-height:46vh;display:grid;place-items:center;}
+  .scene-img img{display:none;width:100%;height:100%;object-fit:cover;}
+  .img-ph{text-align:center;padding:26px;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--ink-soft);}
+  .img-ph .frame{font-size:34px;opacity:.5;}
+  .img-ph .num{font-weight:800;font-size:18px;color:#fff;background:var(--navy);padding:6px 16px;border-radius:999px;}
+  .img-ph .desc{font-size:15px;max-width:52ch;line-height:1.55;}
+
+  .eyebrow{display:inline-block;font-size:14px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--brand-2);padding:7px 15px;border-radius:999px;margin-bottom:16px;transition:background .3s ease;}
+  .story-text{font-size:clamp(19px,2.3vw,25px);color:var(--ink);margin:0 0 4px;line-height:1.62;}
+  .prompt{font-weight:800;font-size:clamp(21px,2.6vw,29px);color:var(--navy);margin:28px 0 16px;}
+
+  /* ---------- choices: AMIT navy pill buttons ---------- */
+  .choices{display:flex;flex-direction:column;gap:15px;}
+  .choice{
+    display:flex;align-items:center;gap:16px;text-align:left;width:100%;
+    background:#fff;color:var(--navy);
+    border:2.5px solid var(--navy);border-radius:999px;
+    box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--navy);
+    padding:16px 20px;font-family:inherit;font-size:clamp(18px,2.1vw,22px);font-weight:700;
+    cursor:pointer;transition:transform .12s ease,border-color .2s ease,box-shadow .2s ease;
+  }
+  .choice .lbl{flex:1;}
+  .choice .navico{flex:0 0 auto;width:clamp(38px,4.4vw,46px);height:clamp(38px,4.4vw,46px);}
+  .choice .navico img{width:100%;height:100%;object-fit:contain;display:block;}
+  .choice:hover{border-color:var(--brand);box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--brand), var(--shadow-soft);transform:translateY(-2px);}
+  .choice:focus-visible{outline:3px solid var(--brand);outline-offset:3px;}
+
+  /* ---------- home: two story cards ---------- */
+  .story-pick{display:grid;gap:18px;grid-template-columns:1fr 1fr;margin-top:8px;}
+  .pick{
+    display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;cursor:pointer;
+    background:#fff;color:var(--navy);
+    border:2.5px solid var(--navy);border-radius:26px;
+    box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--navy);
+    padding:26px;font-family:inherit;
+    transition:transform .14s ease,border-color .2s ease,box-shadow .2s ease;
+  }
+  .pick:hover{transform:translateY(-3px);border-color:var(--brand);box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--brand), var(--shadow-soft);}
+  .pick:focus-visible{outline:3px solid var(--brand);outline-offset:3px;}
+  .pick .startico{width:clamp(52px,6vw,64px);height:clamp(52px,6vw,64px);margin-bottom:8px;}
+  .pick .startico img{width:100%;height:100%;object-fit:contain;display:block;}
+  .pick h3{font-weight:800;font-size:clamp(20px,2.4vw,26px);margin:0;color:var(--navy);}
+  .pick p{margin:0;color:var(--ink-soft);font-size:clamp(15px,1.9vw,18px);font-weight:600;}
+
+  /* ---------- ending ---------- */
+  .ending-tag{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:clamp(17px,2.1vw,21px);color:#fff;background:var(--brand-2);padding:10px 18px;border-radius:999px;margin-top:26px;transition:background .3s ease;}
+  .ending-note{color:var(--ink-soft);font-size:clamp(15px,1.9vw,18px);font-weight:600;margin:14px 0 22px;}
+  .ending-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+  .action-btn{
+    display:inline-flex;align-items:center;gap:12px;
+    background:#fff;color:var(--navy);
+    border:2.5px solid var(--navy);border-radius:999px;
+    box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--navy);
+    padding:12px 22px 12px 14px;font-family:inherit;font-size:clamp(16px,2vw,20px);font-weight:800;
+    cursor:pointer;transition:transform .12s ease,border-color .2s ease,box-shadow .2s ease;
+  }
+  .action-btn:hover{transform:translateY(-2px);border-color:var(--brand);box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--brand), var(--shadow-soft);}
+  .action-btn:focus-visible{outline:3px solid var(--brand);outline-offset:3px;}
+  .action-btn .ai{width:clamp(34px,4vw,42px);height:clamp(34px,4vw,42px);flex:0 0 auto;}
+  .action-btn .ai img{width:100%;height:100%;object-fit:contain;display:block;}
+
+  footer.credit{text-align:center;color:var(--ink-soft);font-size:14px;font-weight:600;margin-top:30px;opacity:.85;}
+
+  @media (max-width:640px){
+    .story-pick{grid-template-columns:1fr;}
+    header.top{flex-wrap:wrap;}
+    .titles p{display:none;}
+    .card-inner{padding:26px 22px 30px;}
+    .scene-img{margin:-26px -22px 20px;}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="head-left">
+        <div class="controls">
+          <button class="icon-btn" id="backBtn" onclick="back()" aria-label="Go back one step" title="Back">
+            <img src="assets/nav-back.png" alt="Back" />
+          </button>
+          <button class="icon-btn" id="homeBtn" onclick="restart()" aria-label="Start over" title="Start over">
+            <img src="assets/btn-restart.png" alt="Start over" />
+          </button>
+        </div>
+        <div class="titles">
+          <h1>What Would You Do?</h1>
+          <p>Make a choice · see what happens · try again</p>
+        </div>
+      </div>
+      <img class="logo" src="assets/amit-logo.png" alt="AMIT network logo" />
+    </header>
+
+    <nav class="trail" id="trail" aria-label="Your choices so far"></nav>
+
+    <main class="card" id="card" aria-live="polite">
+      <div class="card-inner" id="cardInner"></div>
+    </main>
+
+    <footer class="credit">Every choice leads somewhere — and you can always go back and try another path.</footer>
+  </div>
+
+<script>
+/* =========================================================================
+   STORY DATA
+   -------------------------------------------------------------------------
+   Each node has: story ('A' | 'B' | null), an optional image slot (img +
+   imgDesc), the narrative text, and either choices (to keep going) or
+   ending:true (a final result).
+   Images live in an "images/" folder as 01.jpg ... 14.jpg. Until a file
+   exists, a labelled placeholder is shown so you know which picture goes
+   where. Just drop the matching file into images/ to replace a placeholder.
+   ========================================================================= */
+const NODES = {
+
+  /* ---------- HOME ---------- */
+  home:{ story:null, crumb:"Start", home:true },
+
+  /* =====================  STORY A — WITNESSING  ===================== */
+  A_start:{
+    story:"A", crumb:"Witnessing bullying",
+    eyebrow:"Story · Witnessing bullying",
+    img:"01",
+    imgDesc:`תמונה 1: חדר אוכל של בית ספר. קבוצת תלמידים עומדת וצוחקת על ילד אחד (אלכס) שעומד מעט מחוץ לקבוצה.`,
+    text:`You are at school during lunchtime with your friends. You see a group of students making fun of a younger student named Alex. They are saying mean things to Alex.`,
+    choices:[
+      { label:"Tell the bullies to stop", next:"A1" },
+      { label:"Walk away and do nothing", next:"A2" },
+      { label:"Find a teacher", next:"A3" },
+    ],
+  },
+  A1:{
+    story:"A", crumb:"Told them to stop",
+    text:`You tell the bullies to stop. They are surprised and leave Alex alone. You and Alex go to a teacher and tell them what happened. Alex thanks you. Later that day, you see the bullies whispering and looking at you funny. You start to feel nervous.`,
+    choices:[
+      { label:"Talk to a teacher about your worries", next:"A1_1" },
+      { label:"Ignore the bullies and act brave", next:"A1_2" },
+    ],
+  },
+  A1_1:{ story:"A", crumb:"Talked to a teacher", ending:true,
+    img:"02",
+    imgDesc:`תמונה 2: שיחת נזיפה במשרד המנהל/ת — המורה, שני תלמידים מהחבורה, והורה אחד לכל תלמיד (אלכס לא בתמונה).`,
+    text:`The teacher talks to the bullies and their parents. The bullying stops, and you feel safe again.` },
+  A1_2:{ story:"A", crumb:"Stayed brave", ending:true,
+    img:"03",
+    imgDesc:`תמונה 3: ילד ("משה") הולך במסדרון, החבורה צוחקת עליו והוא מתעלם וממשיך ללכת. הפוקוס על ההתעלמות הרגועה שלו.`,
+    text:`The bullies see that you are not afraid, and they stop bothering you. Alex and other students see your bravery and feel inspired.` },
+
+  A2:{
+    story:"A", crumb:"Walked away",
+    text:`You walk away and pretend you didn't see anything. The bullies continue to be mean to Alex. You feel bad later because you didn't help. Alex becomes very sad and doesn't do well in school. The next day, you see Alex sitting alone and looking very sad.`,
+    choices:[
+      { label:"Sit with Alex and talk", next:"A2_1" },
+      { label:"Tell a teacher about Alex", next:"A2_2" },
+    ],
+  },
+  A2_1:{ story:"A", crumb:"Sat with Alex", ending:true,
+    img:"04",
+    imgDesc:`תמונה 4: משה ואלכס יושבים ומדברים אחד עם השני, מחייכים במבטים נעימים.`,
+    text:`Alex feels better because you are friendly. You become friends, and Alex starts to feel happier.` },
+  A2_2:{ story:"A", crumb:"Told a teacher", ending:true,
+    img:"05",
+    imgDesc:`תמונה 5: המורה ואלכס מדברים; אלכס מחייך ורגוע (רצוי אותה מורה מתמונה 2).`,
+    text:`The teacher talks to Alex and helps him. Alex gets support and starts to feel better.` },
+
+  A3:{
+    story:"A", crumb:"Found a teacher",
+    text:`You find a teacher and tell them about the bullying. The teacher stops the bullies and helps Alex. Alex thanks you, and the school decides to teach everyone about why bullying is bad. A few days later, the teacher asks you to help with a project about stopping bullying.`,
+    choices:[
+      { label:"Agree to help with the project", next:"A3_1" },
+      { label:"Say you are too busy", next:"A3_2" },
+    ],
+  },
+  A3_1:{ story:"A", crumb:"Helped the project", ending:true,
+    img:"06",
+    imgDesc:`תמונה 6: קבוצת תלמידים, כולל אלכס ומשה, עובדים יחד על פרויקט ושלטים נגד בריונות, יחד עם המורה.`,
+    text:`You help the teacher, and the project is a big success. Many students learn about kindness, and bullying decreases.` },
+  A3_2:{ story:"A", crumb:"Was too busy", ending:true,
+    img:"07",
+    imgDesc:`תמונה 7: קבוצת תלמידים עם אלכס אך בלי משה, עם המורה, עובדים על שלטים נגד בריונות. משה עומד בצד ולא משתתף.`,
+    text:`The teacher finds other students to help. The project is still successful, but you feel you missed an opportunity to make a bigger difference.` },
+
+  /* =====================  STORY B — BEING BULLIED  ===================== */
+  B_start:{
+    story:"B", crumb:"Being bullied",
+    eyebrow:"Story · Being bullied",
+    img:"08",
+    imgDesc:`תמונה 8: תלמיד ("חיים") הולך במסדרון וסביבו תלמידים צוחקים עליו. הפעם הוא עצוב ונראה שאכפת לו מזה.`,
+    text:`You are walking in the hallway when some students start making fun of you. They say mean things about how you look. You feel very upset.`,
+    choices:[
+      { label:"Tell the bullies to stop", next:"B1" },
+      { label:"Walk away and do nothing", next:"B2" },
+      { label:"Tell your friends", next:"B3" },
+    ],
+  },
+  B1:{
+    story:"B", crumb:"Told them to stop",
+    text:`You tell the bullies to stop. They are surprised and leave you alone for now, but you are worried they might bother you again. Later, you see the bullies looking at you and laughing. You feel anxious.`,
+    choices:[
+      { label:"Tell a teacher about the bullies", next:"B1_1" },
+      { label:"Ask your friends for support", next:"B1_2" },
+    ],
+  },
+  B1_1:{ story:"B", crumb:"Told a teacher", ending:true,
+    img:"09",
+    imgDesc:`תמונה 9: חיים יושב יחד עם החבורה שצחקה עליו קודם, וכולם שמחים.`,
+    text:`The teacher talks to the bullies, and they stop bothering you. You feel relieved and safer at school.` },
+  B1_2:{ story:"B", crumb:"Asked friends", ending:true,
+    img:"10",
+    imgDesc:`תמונה 10: חיים עומד עם חבורת חברים אחרת (לא זו שהציקה), שמח ונינוח. החבורה שהציקה עומדת בקצה ולא מתייחסים אליה.`,
+    text:`Your friends stand by you and help you feel stronger. The bullies see that you have support and leave you alone.` },
+
+  B2:{
+    story:"B", crumb:"Walked away",
+    text:`You walk away and don't say anything. The bullies keep bothering you, and you feel very sad. Later, a teacher notices and helps you, but you wish you had told someone earlier. You feel sad and lonely because the bullies keep bothering you.`,
+    choices:[
+      { label:"Tell a trusted adult about the bullying", next:"B2_1" },
+      { label:"Write about your feelings in a journal", next:"B2_2" },
+    ],
+  },
+  B2_1:{ story:"B", crumb:"Told a trusted adult", ending:true,
+    img:"11",
+    imgDesc:`תמונה 11: חיים עומד מאושר ליד מבוגר כלשהו.`,
+    text:`The adult helps you, and the bullying stops. You start to feel better and safer.` },
+  B2_2:{ story:"B", crumb:"Wrote in a journal", ending:true,
+    img:"12",
+    imgDesc:`תמונה 12: חיים יושב וכותב ביומן, עם פרצוף רגוע ושליו.`,
+    text:`Writing helps you feel a bit better, but the bullying continues until you finally tell a teacher.` },
+
+  B3:{
+    story:"B", crumb:"Told my friends",
+    text:`You tell your friends what happened. They help you tell a teacher. The teacher talks to the bullies, and you feel better because your friends supported you. The next day, your friends ask you how you feel. You still feel a bit scared.`,
+    choices:[
+      { label:"Join a support group at school", next:"B3_1" },
+      { label:"Talk to a school counselor", next:"B3_2" },
+    ],
+  },
+  B3_1:{ story:"B", crumb:"Joined a support group", ending:true,
+    img:"13",
+    imgDesc:`תמונה 13: חיים יושב בקבוצת תמיכה במעגל, עם פרצוף רגוע ושליו.`,
+    text:`You join a group where students talk about bullying. You make new friends and feel much better.` },
+  B3_2:{ story:"B", crumb:"Talked to a counselor", ending:true,
+    img:"14",
+    imgDesc:`תמונה 14: חיים בשיחה עם יועץ/ת בית ספר, עם מבט מעודד.`,
+    text:`The counselor helps you feel more confident and teaches you how to handle bullies in the future.` },
+};
+
+/* =========================================================================
+   APP LOGIC
+   ========================================================================= */
+let path = ["home"];
+const $ = (id) => document.getElementById(id);
+
+function current(){ return path[path.length - 1]; }
+
+function setBrand(story){
+  const root = document.documentElement.style;
+  if(story === "A"){ root.setProperty("--brand","var(--blue)");  root.setProperty("--brand-2","var(--blue-2)");  root.setProperty("--brand-tint","#e2f3fb"); }
+  else if(story === "B"){ root.setProperty("--brand","var(--green)"); root.setProperty("--brand-2","var(--green-2)"); root.setProperty("--brand-tint","#e6f3ea"); }
+  else { root.setProperty("--brand","var(--lime)"); root.setProperty("--brand-2","var(--lime-2)"); root.setProperty("--brand-tint","#f2f5da"); }
+}
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function go(id){ path.push(id); render(); }
+function back(){ if(path.length > 1){ path.pop(); render(); } }
+function restart(){ path = ["home"]; render(); }
+function jumpTo(i){ path = path.slice(0, i + 1); render(); }
+
+function imageBlock(node){
+  if(!node.img) return "";
+  return `
+    <div class="scene-img">
+      <div class="img-ph">
+        <span class="frame">🖼️</span>
+        <span class="num">Image ${esc(node.img)}</span>
+        <span class="desc" dir="rtl" lang="he">${esc(node.imgDesc || "")}</span>
+      </div>
+      <img src="images/${esc(node.img)}.png" alt="Scene illustration ${esc(node.img)}"
+           data-fb="1"
+           onload="this.style.display='block'; this.previousElementSibling.style.display='none';"
+           onerror="if(this.dataset.fb){this.dataset.fb='';this.src='images/${esc(node.img)}.jpg';}" />
+    </div>`;
+}
+
+function renderHome(){
+  return `
+    <span class="eyebrow">A story about kindness</span>
+    <p class="story-text">You are going to read two short stories about bullying. You choose how to react, find out what happens, and see how the story ends. Not happy with a choice? You can always go back and try another one.</p>
+    <p class="prompt">Choose a story to start:</p>
+    <div class="story-pick">
+      <button class="pick" onclick="go('A_start')">
+        <span class="startico"><img src="assets/btn-start.png" alt="" /></span>
+        <h3>Witnessing bullying</h3>
+        <p>You see someone else being treated unkindly.</p>
+      </button>
+      <button class="pick" onclick="go('B_start')">
+        <span class="startico"><img src="assets/btn-start.png" alt="" /></span>
+        <h3>Being bullied</h3>
+        <p>The unkind words are aimed at you.</p>
+      </button>
+    </div>`;
+}
+
+function renderNode(node){
+  let html = imageBlock(node);
+  if(node.eyebrow) html += `<span class="eyebrow">${esc(node.eyebrow)}</span>`;
+  html += `<p class="story-text">${esc(node.text)}</p>`;
+
+  if(node.ending){
+    html += `
+      <div class="ending-tag">✦ The end of this path</div>
+      <p class="ending-note">Curious what a different choice would do? Go back and explore another path.</p>
+      <div class="ending-actions">
+        <button class="action-btn" onclick="back()"><span class="ai"><img src="assets/nav-back.png" alt="" /></span>Try a different choice</button>
+        <button class="action-btn" onclick="restart()"><span class="ai"><img src="assets/btn-restart.png" alt="" /></span>Start over</button>
+      </div>`;
+  } else if(node.choices){
+    html += `<p class="prompt">What do you do?</p><div class="choices">`;
+    node.choices.forEach((c) => {
+      html += `<button class="choice" onclick="go('${c.next}')"><span class="lbl">${esc(c.label)}</span><span class="navico"><img src="assets/nav-forward.png" alt="" /></span></button>`;
+    });
+    html += `</div>`;
+  }
+  return html;
+}
+
+function renderTrail(){
+  const trail = $("trail");
+  if(path.length <= 1){ trail.innerHTML = ""; return; }
+  let html = "";
+  path.forEach((id, i) => {
+    const isNow = i === path.length - 1;
+    const crumb = NODES[id].crumb || id;
+    if(i > 0) html += `<span class="sep">›</span>`;
+    if(isNow) html += `<span class="crumb now">${esc(crumb)}</span>`;
+    else html += `<button class="crumb" onclick="jumpTo(${i})">${esc(crumb)}</button>`;
+  });
+  trail.innerHTML = html;
+}
+
+function render(){
+  const node = NODES[current()];
+  setBrand(node.story);
+
+  const inner = $("cardInner");
+  inner.innerHTML = node.home ? renderHome() : renderNode(node);
+
+  // replay the page-turn animation
+  const card = $("card");
+  card.classList.remove("anim"); void card.offsetWidth; card.classList.add("anim");
+
+  renderTrail();
+  $("backBtn").disabled = path.length <= 1;
+  $("homeBtn").disabled = path.length <= 1;
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+render();
+</script>
+</body>
+</html>
