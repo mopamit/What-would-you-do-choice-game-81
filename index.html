@@ -55,6 +55,19 @@
   .icon-btn:hover{transform:translateY(-2px) scale(1.04);}
   .icon-btn:disabled{opacity:.32;cursor:default;transform:none;}
   .icon-btn:focus-visible{outline:3px solid var(--brand);outline-offset:3px;}
+  .back-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#fff;color:var(--navy);
+    border:2.5px solid var(--navy);border-radius:999px;
+    box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--navy);
+    padding:8px 18px 8px 12px;font-family:inherit;font-weight:800;
+    font-size:clamp(15px,1.9vw,18px);cursor:pointer;
+    transition:transform .12s ease,border-color .2s ease,box-shadow .2s ease,opacity .2s ease;
+  }
+  .back-pill img{width:clamp(26px,3.4vw,32px);height:clamp(26px,3.4vw,32px);object-fit:contain;display:block;}
+  .back-pill:hover{transform:translateY(-2px);border-color:var(--brand);box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--brand), var(--shadow-soft);}
+  .back-pill:disabled{opacity:.32;cursor:default;transform:none;box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 3.5px var(--navy);}
+  .back-pill:focus-visible{outline:3px solid var(--brand);outline-offset:3px;}
 
   /* ---------- path trail (your journey) ---------- */
   .trail{display:flex;align-items:center;gap:2px;overflow-x:auto;padding:2px 4px 16px;scrollbar-width:none;}
@@ -73,9 +86,9 @@
   .card.anim .card-inner{animation:pageIn .32s cubic-bezier(.2,.7,.3,1) both;}
   .card-inner{padding:40px 40px 44px;}
 
-  .scene-img{position:relative;margin:-40px -40px 28px;background:#eef2f5;border-bottom:1px solid var(--line);aspect-ratio:16/9;max-height:46vh;display:grid;place-items:center;}
-  .scene-img img{display:none;width:100%;height:100%;object-fit:cover;}
-  .img-ph{text-align:center;padding:26px;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--ink-soft);}
+  .scene-img{position:relative;margin:-40px -40px 28px;background:#eef2f5;border-bottom:1px solid var(--line);display:block;overflow:hidden;}
+  .scene-img img{display:none;width:100%;height:auto;}
+  .img-ph{min-height:260px;text-align:center;padding:34px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--ink-soft);}
   .img-ph .frame{font-size:34px;opacity:.5;}
   .img-ph .num{font-weight:800;font-size:18px;color:#fff;background:var(--navy);padding:6px 16px;border-radius:999px;}
   .img-ph .desc{font-size:15px;max-width:52ch;line-height:1.55;}
@@ -151,11 +164,11 @@
     <header class="top">
       <div class="head-left">
         <div class="controls">
-          <button class="icon-btn" id="backBtn" onclick="back()" aria-label="Go back one step" title="Back">
-            <img src="assets/nav-back.png" alt="Back" />
+          <button class="back-pill" id="backBtn" onclick="back()" aria-label="Go back one step">
+            <img src="assets/arrow-left.png" alt="" /><span>Back</span>
           </button>
-          <button class="icon-btn" id="homeBtn" onclick="restart()" aria-label="Start over" title="Start over">
-            <img src="assets/btn-restart.png" alt="Start over" />
+          <button class="icon-btn" id="homeBtn" onclick="restart()" aria-label="Back to start" title="Back to start">
+            <img src="assets/home.png" alt="Back to start" />
           </button>
         </div>
         <div class="titles">
@@ -365,12 +378,10 @@ function renderHome(){
     <p class="prompt">Choose a story to start:</p>
     <div class="story-pick">
       <button class="pick" onclick="go('A_start')">
-        <span class="startico"><img src="assets/btn-start.png" alt="" /></span>
         <h3>Witnessing bullying</h3>
         <p>You see someone else being treated unkindly.</p>
       </button>
       <button class="pick" onclick="go('B_start')">
-        <span class="startico"><img src="assets/btn-start.png" alt="" /></span>
         <h3>Being bullied</h3>
         <p>The unkind words are aimed at you.</p>
       </button>
@@ -387,13 +398,13 @@ function renderNode(node){
       <div class="ending-tag">✦ The end of this path</div>
       <p class="ending-note">Curious what a different choice would do? Go back and explore another path.</p>
       <div class="ending-actions">
-        <button class="action-btn" onclick="back()"><span class="ai"><img src="assets/nav-back.png" alt="" /></span>Try a different choice</button>
-        <button class="action-btn" onclick="restart()"><span class="ai"><img src="assets/btn-restart.png" alt="" /></span>Start over</button>
+        <button class="action-btn" onclick="back()"><span class="ai"><img src="assets/arrow-left.png" alt="" /></span>Try a different choice</button>
+        <button class="action-btn" onclick="restart()"><span class="ai"><img src="assets/home.png" alt="" /></span>Start over</button>
       </div>`;
   } else if(node.choices){
     html += `<p class="prompt">What do you do?</p><div class="choices">`;
     node.choices.forEach((c) => {
-      html += `<button class="choice" onclick="go('${c.next}')"><span class="lbl">${esc(c.label)}</span><span class="navico"><img src="assets/nav-forward.png" alt="" /></span></button>`;
+      html += `<button class="choice" onclick="go('${c.next}')"><span class="lbl">${esc(c.label)}</span><span class="navico"><img src="assets/arrow-right.png" alt="" /></span></button>`;
     });
     html += `</div>`;
   }
