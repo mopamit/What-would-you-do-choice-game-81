@@ -365,10 +365,7 @@ function imageBlock(node){
         <span class="num">Image ${esc(node.img)}</span>
         <span class="desc" dir="rtl" lang="he">${esc(node.imgDesc || "")}</span>
       </div>
-      <img src="images/${esc(node.img)}.png" alt="Scene illustration ${esc(node.img)}"
-           data-fb="1"
-           onload="this.style.display='block'; this.previousElementSibling.style.display='none';"
-           onerror="if(this.dataset.fb){this.dataset.fb='';this.src='images/${esc(node.img)}.jpg';}" />
+      <img class="scene-photo" data-num="${esc(node.img)}" alt="Scene illustration ${esc(node.img)}" src="images/${esc(node.img)}.png" />
     </div>`;
 }
 
@@ -432,12 +429,34 @@ function renderTrail(){
   trail.innerHTML = html;
 }
 
+function hydrateImage(){
+  const img = document.querySelector(".scene-photo");
+  if(!img) return;
+  const ph = img.previousElementSibling;
+  const reveal = () => { img.style.display = "block"; if(ph) ph.style.display = "none"; };
+  let triedJpg = false;
+  const fail = () => { if(!triedJpg){ triedJpg = true; img.src = "images/" + img.dataset.num + ".jpg"; } };
+  img.addEventListener("load", reveal);
+  img.addEventListener("error", fail);
+  if(img.complete){ (img.naturalWidth > 0) ? reveal() : fail(); }
+}
+
+function preloadImages(){
+  for(let i = 1; i <= 14; i++){
+    const n = String(i).padStart(2, "0");
+    const im = new Image();
+    im.onerror = () => { const j = new Image(); j.src = "images/" + n + ".jpg"; };
+    im.src = "images/" + n + ".png";
+  }
+}
+
 function render(){
   const node = NODES[current()];
   setBrand(node.story);
 
   const inner = $("cardInner");
   inner.innerHTML = node.home ? renderHome() : renderNode(node);
+  hydrateImage();
 
   // replay the page-turn animation
   const card = $("card");
@@ -449,6 +468,7 @@ function render(){
   window.scrollTo({ top:0, behavior:"smooth" });
 }
 
+preloadImages();
 render();
 </script>
 </body>
